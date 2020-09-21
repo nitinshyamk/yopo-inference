@@ -28,4 +28,6 @@ int main() {
 	std::shared_ptr<IAttacker<SmallCNNImpl>> pgdattacker = std::make_shared<PGDAttacker<SmallCNNImpl>>();
 
 	StandardTrainer<SmallCNNImpl, torch::nn::CrossEntropyLossImpl> standardTrainer(smcnn, pgdattacker, optimizer, torch::nn::CrossEntropyLoss(), c10::kCUDA);
+
+	YOPOTrainer<SmallCNNImpl, torch::nn::CrossEntropyLossImpl> yopoTrainer(smcnn, optimizer, torch::nn::CrossEntropyLoss(), 5, 10);
 }

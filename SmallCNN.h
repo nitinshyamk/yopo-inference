@@ -61,6 +61,9 @@ public:
 		return logits;
 	}
 
+	StackSequential layer_one() { return _l1;  }
+
+
 private:
 	// data
 	size_t _numchannels = 1;
