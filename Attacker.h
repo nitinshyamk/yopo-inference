@@ -117,7 +117,7 @@ struct PGDAttacker : IAttacker<ModuleType>
 		return eta;
 	}
 
-	virtual void to_device(c10::Device& device) {}
+	virtual void to_device(c10::Device& device) { _cel->to(_device); }
 
 private:
 	double _epsilon;

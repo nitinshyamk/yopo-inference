@@ -117,7 +117,8 @@ int main_example(int argc, const char* argv[]) {
     const int64_t batches_per_epoch =
         std::ceil(dataset.size().value() / static_cast<double>(kBatchSize));
 
-    auto data_loader = torch::data::make_data_loader(
+   std::unique_ptr<torch::data::StatelessDataLoader<decltype(dataset), torch::data::samplers::RandomSampler>> 
+        data_loader = torch::data::make_data_loader(
         std::move(dataset),
         torch::data::DataLoaderOptions().batch_size(kBatchSize).workers(2));
 

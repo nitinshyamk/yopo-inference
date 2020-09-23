@@ -7,7 +7,7 @@ template <typename NetworkType>
 class Evaluator
 {
 public:
-	Evaluator(const c10::Device& device, std::shared_ptr<IAttacker<NetworkType>> attacker)  :  _device(device), _attacker(attacker) {}
+	Evaluator(std::shared_ptr<IAttacker<NetworkType>> attacker, const c10::Device& device)  :  _device(device), _attacker(attacker) {}
 
 	void evaluate_single_batch(torch::nn::ModuleHolder<NetworkType> network, torch::data::Example<>& example)
 	{
@@ -21,9 +21,9 @@ public:
 			auto prediction = network(data);
 			_clean_accuracy.update(calculate_torch_accuracy(prediction, label));
 
-			if (attacker.getType() != AttackType::Noop)
+			if (_attacker->getType() != AttackType::Noop)
 			{
-				auto adversarial_input = _attacker.value()(network, data, label);
+				auto adversarial_input = (*_attacker)(network, data, label);
 				auto adv_prediction = network(data);
 				_adversarial_accuracy.update(calculate_torch_accuracy(adv_prediction, label));
 			}
@@ -32,7 +32,13 @@ public:
 
 	std::pair<double, double> get_accuracies()
 	{
-		return std::make_pair(_clean_accuracy.getMean(), _adversary_accuracy.getMean());
+		return std::make_pair(_clean_accuracy.getMean(), _adversarial_accuracy.getMean());
+	}
+
+	void reset()
+	{
+		_clean_accuracy.reset();
+		_adversarial_accuracy.reset();
 	}
 
 	average_meter _clean_accuracy = average_meter("clean accuracy");

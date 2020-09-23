@@ -9,7 +9,7 @@ struct Hamiltonian
 	torch::Tensor operator()(torch::Tensor x, torch::Tensor p)
 	{
 		auto y = _layer(x);
-		auto H = torch.sum(y * p);
+		auto H = torch::sum(y * p);
 		return H;
 	}
 

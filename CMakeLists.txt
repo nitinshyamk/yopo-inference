@@ -13,9 +13,11 @@ project ("yopo-experiment" CXX CUDA)
 find_package(Torch REQUIRED "D:/ProgramData/libtorch-win-shared-with-deps-debug-1.6.0/libtorch")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
-message(WARNING ${TORCH_LIBRARIES})
+file(GLOB YOPO-EXP-HEADER *.h */*.h)
+file(GLOB YOPO-EXP-SRC *.cpp )
+message(WARNING ${YOPO-EXP-HEADER})
 # Add source to this project's executable.
-add_executable (yopo-experiment "yopo-experiment.cpp" "yopo-experiment.h" "SmallCNN.h" "Attacker.h" "datasets.h" "Evaluator.h" "utilities.h" "dcgan.cpp" "utilities.cpp" "Trainer.h" "Loss.h" "ExperimentRunner.h")
+add_executable (yopo-experiment ${YOPO-EXP-HEADER} ${YOPO-EXP-SRC})
 target_link_libraries(yopo-experiment "${TORCH_LIBRARIES}")
 set_property(TARGET yopo-experiment PROPERTY CXX_STANDARD 17)
 

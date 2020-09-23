@@ -17,8 +17,10 @@ struct SmallCNNImpl : nn::Module
 public:
 	SmallCNNImpl(double drop_rate = 0.5, size_t numlabels = 10) : _numlabels(numlabels)
 	{
+		_conv1 = create_conv2d(this->_numchannels, 32, 3);
+
 		_l1 = StackSequential(
-			create_conv2d(this->_numchannels, 32, 3),
+			_conv1,
 			nn::ReLU());
 
 		_feature_extractor = StackSequential(
@@ -55,13 +57,15 @@ public:
 		if (x.dim() != 4 || x.size(1) != 1 || x.size(2) != 28 || x.size(3) != 28)
 			throw std::invalid_argument("Incorrectly sized input tensor. Should have dimensions BatchSize X Channel (1) X Height (28) X Width (28)");
 		auto y = _l1->forward(x);
-		auto l1out = y; l1out.requires_grad_(); l1out.retain_grad();
+		_l1out = y; _l1out.requires_grad_(); _l1out.retain_grad();
 		auto features = this->_feature_extractor->forward(y);
 		auto logits = this->_classifier->forward(features.view({ -1, 64 * 4 * 4 }));
 		return logits;
 	}
-
+	
+	torch::Tensor layer_one_output() { return _l1out;  }
 	StackSequential layer_one() { return _l1;  }
+	nn::Conv2d conv1() { return _conv1; }
 
 
 private:
@@ -69,8 +73,11 @@ private:
 	size_t _numchannels = 1;
 	size_t _numlabels = 10;
 
+
 	// layers
+	nn::Conv2d _conv1{ nullptr };
 	StackSequential _l1{ nullptr };
+	torch::Tensor _l1out;
 	StackSequential _feature_extractor{ nullptr };
 	StackSequential _classifier{ nullptr };
 
