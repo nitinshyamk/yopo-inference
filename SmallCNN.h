@@ -19,11 +19,11 @@ public:
 	{
 		_conv1 = create_conv2d(this->_numchannels, 32, 3);
 
-		_l1 = StackSequential(
+		_l1 = nn::Sequential(
 			_conv1,
 			nn::ReLU());
 
-		_feature_extractor = StackSequential(
+		_feature_extractor = nn::Sequential(
 			create_conv2d(32, 32, 3),
 			nn::ReLU(),
 			nn::MaxPool2d(nn::MaxPool2dOptions({ 2, 2 })),
@@ -35,7 +35,7 @@ public:
 		);
 
 		auto lin3 = nn::Linear(200, _numlabels);
-		_classifier = StackSequential(
+		_classifier = nn::Sequential(
 			nn::Linear(64 * 4 * 4, 200),
 			nn::ReLU(),
 			nn::Dropout(drop_rate),
@@ -43,6 +43,7 @@ public:
 			nn::ReLU(),
 			lin3);
 
+		register_module("_conv1", _conv1);
 		register_module("_l1", _l1);
 		register_module("_feature_extractor", _feature_extractor);
 		register_module("_classifier", _classifier);
@@ -64,7 +65,7 @@ public:
 	}
 	
 	torch::Tensor layer_one_output() { return _l1out;  }
-	StackSequential layer_one() { return _l1;  }
+	nn::Sequential layer_one() { return _l1;  }
 	nn::Conv2d conv1() { return _conv1; }
 
 
@@ -76,10 +77,10 @@ private:
 
 	// layers
 	nn::Conv2d _conv1{ nullptr };
-	StackSequential _l1{ nullptr };
+	nn::Sequential _l1{ nullptr };
 	torch::Tensor _l1out;
-	StackSequential _feature_extractor{ nullptr };
-	StackSequential _classifier{ nullptr };
+	nn::Sequential _feature_extractor{ nullptr };
+	nn::Sequential _classifier{ nullptr };
 
 	nn::Conv2d create_conv2d(size_t inchannel, size_t outchannel, size_t kernel)
 	{

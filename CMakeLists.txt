@@ -14,8 +14,8 @@ find_package(Torch REQUIRED "D:/ProgramData/libtorch-win-shared-with-deps-debug-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 file(GLOB YOPO-EXP-HEADER *.h */*.h)
-file(GLOB YOPO-EXP-SRC *.cpp )
-message(WARNING ${YOPO-EXP-HEADER})
+file(GLOB YOPO-EXP-SRC *.cpp */*.cpp)
+message(WARNING ${TORCH_LIBRARIES})
 # Add source to this project's executable.
 add_executable (yopo-experiment ${YOPO-EXP-HEADER} ${YOPO-EXP-SRC})
 target_link_libraries(yopo-experiment "${TORCH_LIBRARIES}")
@@ -24,11 +24,9 @@ set_property(TARGET yopo-experiment PROPERTY CXX_STANDARD 17)
 # The following code block is suggested to be used on Windows.
 # According to https://github.com/pytorch/pytorch/issues/25457,
 # the DLLs need to be copied to avoid memory errors.
-if (MSVC)
-  file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
-  add_custom_command(TARGET yopo-experiment
+file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
+add_custom_command(TARGET yopo-experiment
                      POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E copy_if_different
                      ${TORCH_DLLS}
                      $<TARGET_FILE_DIR:yopo-experiment>)
-endif (MSVC)

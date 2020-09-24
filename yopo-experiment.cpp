@@ -4,7 +4,8 @@
 #include <memory>
 #include <deque>
 #include "SmallCNN.h"
-#include "Attacker.h"
+#include "Attackers/IAttacker.h"
+#include "Attackers/PGDAttacker.h"
 #include "Evaluator.h"
 #include "Loss.h"
 #include "Trainers/StandardTrainer.h"
@@ -12,6 +13,7 @@
 #include "ExperimentRunner.h"
 
 namespace nn = torch::nn;
+namespace dt = torch::data;
 
 int main() {
 	using OptimizerPtr = std::shared_ptr<torch::optim::Optimizer>;
@@ -23,18 +25,18 @@ int main() {
 	c10::Device DEVICE = c10::kCUDA;
 	std::deque<ExperimentRunnerPtr> experiments;
 
-	auto mnist_training = torch::data::datasets::MNIST("FIX ME")
-		.map(torch::data::transforms::Normalize<>(0.5, 0.5))
-		.map(torch::data::transforms::Stack<>());
+	auto mnist_training = dt::datasets::MNIST("D:/Projects/data/mnist", dt::datasets::MNIST::Mode::kTrain)
+		.map(dt::transforms::Normalize<>(0.5, 0.5))
+		.map(dt::transforms::Stack<>());
 
 	{
 		std::string experimentName = "PGD-Adversarial-1";
 
-		SmallCNN smcnn;
+		SmallCNN smcnn; smcnn->to(DEVICE);
 
 		OptimizerPtr optimizer = std::make_shared<torch::optim::Adam>(smcnn->parameters());
 
-		shared_ptr<IAttacker<SmallCNNImpl>> pgdattacker = std::make_shared<PGDAttacker<SmallCNNImpl>>();
+		shared_ptr<IAttacker<SmallCNNImpl>> pgdattacker = std::make_shared<PGDAttacker<SmallCNNImpl>>(6.0 / 255.0, 3.0 / 255.0, 20, DEVICE);
 
 		TrainerPtr trainer = std::make_shared<StandardTrainer<SmallCNNImpl, nn::CrossEntropyLossImpl>>(
 			smcnn, pgdattacker, optimizer, torch::nn::CrossEntropyLoss(), DEVICE);
@@ -45,4 +47,6 @@ int main() {
 	};
 
 
+	for (auto experiment : experiments)
+		experiment->Run();
 }

@@ -93,7 +93,7 @@ public:
 
 private:
 	torch::nn::ModuleHolder<NetworkType> _network;
-	FastGradientSingleLayerTrainer<StackSequentialImpl> _layer_one_trainer;
+	FastGradientSingleLayerTrainer<torch::nn::SequentialImpl> _layer_one_trainer;
 	torch::nn::ModuleHolder<LossModuleType> _loss;
 	std::shared_ptr<torch::optim::Optimizer> _optimizer;
 	int _K;

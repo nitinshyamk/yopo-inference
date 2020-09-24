@@ -24,6 +24,7 @@ struct CrossEntropyWithWeightPenaltyImpl : torch::nn::Cloneable<CrossEntropyWith
 	{
 		_network.to(device);
 		_loss->to(device);
+		register_module("_loss", _loss);
 	}
 
 	virtual void reset()

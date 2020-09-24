@@ -7,6 +7,7 @@
 
 class IExperimentRunner
 {
+public:
 	virtual void Run() = 0;
 };
 

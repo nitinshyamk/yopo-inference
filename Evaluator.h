@@ -1,6 +1,6 @@
 #pragma once
 #include <torch/torch.h>
-#include "Attacker.h"
+#include "Attackers/IAttacker.h"
 #include "utilities.h"
 
 template <typename NetworkType>
